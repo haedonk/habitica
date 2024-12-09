@@ -1186,9 +1186,17 @@ export default {
     castEnd (e, task) {
       setTimeout(() => this.$root.$emit('castEnd', task, 'task', e), 0);
     },
-    async score (direction) {
+    async score(direction) {
       if (this.showTaskLockIcon) return;
       if (this.task.type === 'habit' && !this.task[direction]) return;
+
+      // If this is a To-Do and the user is completing it (direction = 'up'),
+      // prompt them before proceeding.
+      if (this.task.type === 'todo' && direction === 'up') {
+        const message = 'Are you sure you want to mark this To-Do as complete? It will be removed.';
+        if (!window.confirm(message)) return; // User canceled, so just return here
+      }
+
       if (
         this.isGroupTask && direction === 'down'
         && ['todo', 'daily'].indexOf(this.task.type) !== -1
